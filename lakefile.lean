@@ -9,7 +9,7 @@ lean_lib YatimaStdLib where
 
 require "leanprover-community" / "batteries" @ git "main"
 
-require "lurk-lab" / "LSpec" @ git "b7d4dc6"
+require "lurk-lab" / "LSpec" @ git "7f2c46b"
 
 
 section ImportAll
