@@ -1,6 +1,6 @@
-import Std.Data.RBMap
+import Batteries.Data.RBMap
 
-open Std Lean
+open Batteries Lean
 
 namespace Lean.RBNode
 
@@ -12,16 +12,16 @@ instance [BEq α] [BEq β] : BEq (Lean.RBNode α fun _ => β) where
 
 end Lean.RBNode
 
-namespace Std.RBMap
+namespace Batteries.RBMap
 
-@[inline] def findM {ordering : α → α → Ordering} [Monad m] [MonadExcept ε m] 
+@[inline] def findM {ordering : α → α → Ordering} [Monad m] [MonadExcept ε m]
   (rbmap : RBMap α β ordering) (a : α) (e : ε) : m β :=
-  match rbmap.find? a with 
+  match rbmap.find? a with
   | some b => pure b
   | none => throw e
 
-instance [ToString α] [ToString β] {ordering : α → α → Ordering} : 
+instance [ToString α] [ToString β] {ordering : α → α → Ordering} :
   ToString (RBMap α β ordering) :=
   { toString := fun rbmap => s!"{rbmap.toList}" }
 
-end Std.RBMap
+end Batteries.RBMap

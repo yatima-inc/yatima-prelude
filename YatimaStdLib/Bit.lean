@@ -127,7 +127,7 @@ def UInt8.toBits (u : UInt8) : List Bit :=
   Bit.listPad 8 $ Nat.toBits $ UInt8.toNat u
 
 def ByteArray.toBits (ba : ByteArray) : List Bit :=
-  List.join $ List.map UInt8.toBits $ ByteArray.toList ba
+  List.flatten $ List.map UInt8.toBits $ ByteArray.toList ba
 
 /-- Generates the array of binary expansions between `0` and `2^n` -/
 def getBits (n : Nat) : Array (Array Bit) := Id.run do

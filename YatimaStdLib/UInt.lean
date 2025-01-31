@@ -33,14 +33,13 @@ def sum3 (i a b : UInt8) : UInt8 × UInt8 :=
 end UInt8
 
 def UInt16.toByteArrayL (n : UInt16) : ByteArray :=
-  ⟨#[n.toUInt8, (n / 256) % 65536 |>.toUInt8]⟩
+  ⟨#[n.toUInt8, (n / 256) |>.toUInt8]⟩
 
 @[extern "lean_uint16_to_byte_array"]
 def UInt16.toByteArray : UInt16 → ByteArray :=
   UInt16.toByteArrayL
 
-theorem UInt16.toByteArray_size_2 : (UInt16.toByteArray n).size = 2 := by
-  simp [ByteArray.size, Array.size, List.length]
+theorem UInt16.toByteArray_size_2 : (UInt16.toByteArray n).size = 2 := by rfl
 
 def UInt32.toByteArrayL (n : UInt32) : ByteArray :=
   let a₀ := n.toUInt8
@@ -49,15 +48,14 @@ def UInt32.toByteArrayL (n : UInt32) : ByteArray :=
   let n := n / 256
   let a₂ := n % 16777216 |>.toUInt8
   let n := n / 256
-  let a₃ := n % 4294967296 |>.toUInt8
+  let a₃ := n |>.toUInt8
   ⟨#[a₀, a₁, a₂, a₃]⟩
 
 @[extern "lean_uint32_to_byte_array"]
 def UInt32.toByteArray : UInt32 → ByteArray :=
   UInt32.toByteArrayL
 
-theorem UInt32.toByteArray_size_4 : (UInt32.toByteArray n).size = 4 := by
-  simp [ByteArray.size, Array.size, List.length]
+theorem UInt32.toByteArray_size_4 : (UInt32.toByteArray n).size = 4 := by rfl
 
 def UInt64.toByteArrayL (n : UInt64) : ByteArray :=
   let a₀ := n.toUInt8
@@ -81,5 +79,4 @@ def UInt64.toByteArrayL (n : UInt64) : ByteArray :=
 def UInt64.toByteArray : UInt64 → ByteArray :=
   UInt64.toByteArrayL
 
-theorem UInt64.toByteArray_size_8 : (UInt64.toByteArray n).size = 8 := by
-  simp [ByteArray.size, Array.size, List.length]
+theorem UInt64.toByteArray_size_8 : (UInt64.toByteArray n).size = 8 := by rfl

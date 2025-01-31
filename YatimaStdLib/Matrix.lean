@@ -8,6 +8,8 @@ Note we do not use any dependent types or any useful features of Lean. This was 
 will hopefully improve with time and more lemmas about arrays available in `std4`
 -/
 
+namespace YatimaStdLib
+
 variable (R : Type) [Ring R]
 
 section vector
@@ -20,7 +22,7 @@ variable {R} [OfNat R (nat_lit 0)]
 
 /-
 NOTE : All these definitions only make sense when we know that the two arrays representing the
-vectors have the same dimension. Otherwise you'll get nonsense. 
+vectors have the same dimension. Otherwise you'll get nonsense.
 Look at `AbstractMatrix.lean` for a comment on the prefered solution where vectors carry their
 length, which is currently blocked by some formalization of Array lemmas that still needs to be done
 in the standard library.

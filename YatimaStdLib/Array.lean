@@ -1,4 +1,4 @@
-import Std.Data.Array.Basic
+import Batteries.Data.Array.Basic
 import YatimaStdLib.List
 
 namespace Array
@@ -10,7 +10,7 @@ def iota (n : Nat) : Array Nat :=
 instance : Monad Array where
   map := Array.map
   pure x := #[x]
-  bind l f := Array.join $ Array.map f l
+  bind l f := Array.flatten $ Array.map f l
 
 def shuffle (ar : Array α) (seed : Option Nat := none) [Inhabited α] :
     IO $ Array α := do
@@ -29,17 +29,17 @@ def pad (ar : Array α) (a : α) (n : Nat) : Array α :=
   ar ++ (.mkArray diff a)
 
 instance [Ord α] : Ord (Array α) where
-  compare x y := compare x.data y.data
+  compare x y := compare x.toList y.toList
 
 def last (ar : Array α) : Array α := ar.toSubarray.popFront.toArray
 
-theorem append_size (arr₁ arr₂ : Array α) (h1 : arr₁.size = n) (h2 : arr₂.size = m) 
+theorem append_size (arr₁ arr₂ : Array α) (h1 : arr₁.size = n) (h2 : arr₂.size = m)
     : (arr₁ ++ arr₂).size = n + m := by
   unfold Array.size at *
   simp [h1, h2]
 
 def stdSizes (maxSize : Nat) := Array.iota maxSize |>.map (2 ^ ·)
 
-def average (arr : Array Nat) : Nat := 
+def average (arr : Array Nat) : Nat :=
   let sum := arr.foldl (init := 0) fun acc a => acc + a
   sum / arr.size

@@ -7,25 +7,9 @@ package YatimaStdLib
 lean_lib YatimaStdLib where
   precompileModules := true
 
-def ffiC := "ffi.c"
-def ffiO := "ffi.o"
+require "leanprover-community" / "batteries" @ git "main"
 
-target ffi.o pkg : FilePath := do
-  let oFile := pkg.buildDir / ffiO
-  let srcJob ← inputFile $ pkg.dir / ffiC
-  let flags := #["-I", (← getLeanIncludeDir).toString, "-fPIC"]
-  buildO ffiC oFile srcJob flags
-
-extern_lib ffi pkg := do
-  let name := nameToStaticLib "ffi"
-  let job ← fetch <| pkg.target ``ffi.o
-  buildStaticLib (pkg.nativeLibDir / name) #[job]
-
-require std from git
-  "https://github.com/leanprover/std4/" @ "9e37a01f8590f81ace095b56710db694b5bf8ca0"
-
-require LSpec from git
-  "https://github.com/lurk-lab/LSpec" @ "3388be5a1d1390594a74ec469fd54a5d84ff6114"
+require "lurk-lab" / "LSpec" @ git "b7d4dc6"
 
 
 section ImportAll

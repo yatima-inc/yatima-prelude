@@ -1,6 +1,6 @@
 import YatimaStdLib.String
 
-inductive Tree (α : Type) where 
+inductive Tree (α : Type) where
   | empty : Tree α
   | node  : α → List (Tree α) → Tree α
   deriving BEq, Repr
@@ -34,10 +34,10 @@ partial def size : Tree α → Nat
   node a []
 
 @[inline] partial def bind : Tree α → (α → Tree β) → Tree β :=
-  fun x b => match x with 
-  | empty     => empty 
-  | node x ts => 
-    match b x with 
+  fun x b => match x with
+  | empty     => empty
+  | node x ts =>
+    match b x with
     | empty       => empty
     | node x' ts' => node x' (ts' ++ List.map (fun ta => bind ta b) ts)
 
@@ -50,9 +50,9 @@ mutual
   partial def preorder : Tree α → List α
     | empty     => []
     | node x ts => x :: preorderF ts
-  
+
   partial def preorderF (ts : List $ Tree α) : List α :=
-    (ts.map preorder).join
+    (ts.map preorder).flatten
 
 end
 
@@ -61,9 +61,9 @@ mutual
   partial def postorder : Tree α → List α
     | empty     => []
     | node x ts => postorderF ts ++ [x]
-  
+
   partial def postorderF (ts : List $ Tree α) : List α :=
-    (ts.map postorder).join
+    (ts.map postorder).flatten
 
 end
 

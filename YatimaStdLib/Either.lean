@@ -51,7 +51,7 @@ def leftsArray (l : List $ Either α β) : Array α :=
     | _ => acc
 
 def lefts (l : List $ Either α β) : List α :=
-  leftsArray l |>.data
+  leftsArray l |>.toList
 
 /-- Faster version of `lefts`, but the resulting order is reversed. -/
 def leftsReverse (l : List $ Either α β) : List α :=
@@ -71,7 +71,7 @@ def rightsReverse (l : List $ Either α β) : List β :=
     | _ => acc
 
 def rights (l : List $ Either α β) : List β :=
-  rightsArray l |>.data
+  rightsArray l |>.toList
 
 @[specialize] def either (f : α → χ) (g : β → χ) : Either α β → χ
   | .left  a => f a
