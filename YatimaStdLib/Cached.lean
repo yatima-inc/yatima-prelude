@@ -1,6 +1,6 @@
 namespace Cached
 
-structure Cached {α : Type u} {β : Type v} (f : α → β) (x : α) :=
+structure Cached {α : Type u} {β : Type v} (f : α → β) (x : α) where
   val : β
   isFX : f x = val
   deriving Repr

@@ -4,13 +4,13 @@ import YatimaStdLib.Nat
 /-!
 # AddChain
 
-This module implements an efficient representation of numbers in terms of the double-and-add 
+This module implements an efficient representation of numbers in terms of the double-and-add
 algorithm.
 
 The finding an `AddChain` with `minChain` can be used to pre-calculate the function which
 implements a double-and-add or square-and-multiply represention of a natural number.
 
-The types are left polymorphic to allow for more efficient implementations of `double` in the 
+The types are left polymorphic to allow for more efficient implementations of `double` in the
 case of `Chainable`, or `square` for `Square`.
 
 ## References
@@ -22,13 +22,13 @@ case of `Chainable`, or `square` for `Square`.
 
 /-- The typeclass which implements efficient `add`, `mul`, `double`, and `doubleAdd` methods -/
 class Chainable (α : Type _) extends BEq α, OfNat α (nat_lit 1) where
-  add : α → α → α 
-  mul : α → α → α 
+  add : α → α → α
+  mul : α → α → α
   double : α → α := fun x => add x x
-  doubleAdd : α → α → α := fun x y => add (double x) y 
+  doubleAdd : α → α → α := fun x y => add (double x) y
 
 /-
-In this section we include the basic instances for `Chainable` that exist in the core 
+In this section we include the basic instances for `Chainable` that exist in the core
 numerical libraries of Lean
 -/
 section instances
@@ -53,7 +53,7 @@ inductive ChainStep | add (idx₁ idx₂ : Nat) | double (idx : Nat)
 deriving Repr
 
 /--
-The chain of operations that can be used to represent a `Chainable` n in terms of the 
+The chain of operations that can be used to represent a `Chainable` n in terms of the
 double-and-add algorithm
 -/
 def AddChain (α : Type _) [Chainable α] := Array α
@@ -62,23 +62,23 @@ instance [Chainable α] : Inhabited (AddChain α) where
   default := #[1]
 
 instance [Chainable α] : HAdd (AddChain α) α (AddChain α) where
-  hAdd ch n := ch.push (n + ch.back)
+  hAdd ch n := ch.push (n + ch.back!)
 
 instance [Chainable α] : Mul (AddChain α) where
-  mul ch₁ ch₂ := 
-    let last := ch₁.back
-    let ch₂' := ch₂.last.map (fun x => x * last) 
+  mul ch₁ ch₂ :=
+    let last := ch₁.back!
+    let ch₂' := ch₂.last.map (fun x => x * last)
     ch₁.append ch₂'
 
-/- 
-In this section we implement an efficient algorithm to calculate the minimal AddChain for a natural 
+/-
+In this section we implement an efficient algorithm to calculate the minimal AddChain for a natural
 number
 -/
 namespace Nat
 
-mutual 
+mutual
 
-private partial def addChain (n k : Nat) : AddChain Nat := 
+private partial def addChain (n k : Nat) : AddChain Nat :=
   let (q, r) := n.quotRem k
   if r == 0 || r == 1 then
     minChain k * minChain q + r else
@@ -88,7 +88,7 @@ private partial def addChain (n k : Nat) : AddChain Nat :=
 partial def minChain (n : Nat) : AddChain Nat :=
   let logN := n.log2
   if n == (1 <<< logN) then
-    Array.iota logN |>.map fun k => 2^k 
+    Array.iota logN |>.map fun k => 2^k
   else if n == 3 then
     #[1, 2, 3] else
     let k := n / (1 <<< (logN/2))
@@ -124,8 +124,8 @@ def buildSteps [Chainable α] (ch : AddChain α) : Array ChainStep := Id.run do
 
 end AddChain
 
-/-- 
-The function which returns the `AddChain` and the `Array ChainStep` to represent the natural number 
+/--
+The function which returns the `AddChain` and the `Array ChainStep` to represent the natural number
 `n` in terms of the double-and-add representation
 -/
 def Nat.buildAddChain (n : Nat) : AddChain Nat × Array ChainStep :=
@@ -137,7 +137,7 @@ class Square (α : Type _) extends OfNat α (nat_lit 1) where
   mul : α → α → α
   square : α → α
 
-namespace Square 
+namespace Square
 
 instance [Square α] : Inhabited α where
   default := 1
@@ -155,12 +155,12 @@ instance [Square α] : Mul α where
 
   for step in steps.toList do
     match step with
-    | .add left right => 
+    | .add left right =>
       answer := answer.push (answer[left]! * answer[right]!)
-    | .double idx => 
+    | .double idx =>
       answer := answer.push (square answer[idx]!)
-  
-  answer.back
+
+  answer.back!
 
 end Square
 
@@ -168,7 +168,7 @@ namespace Exp
 
 open Square in
 /-- Returns the function `n ↦ n ^ exp` by pre-calculating the `AddChain` for `exp`. -/
-@[specialize] def fastExpFunc [Square α] (exp : Nat) : α → α := 
+@[specialize] def fastExpFunc [Square α] (exp : Nat) : α → α :=
   let (_ , steps) := exp.buildAddChain
   chainExp steps
 
@@ -176,6 +176,6 @@ open Square in
 @[specialize] def fastExp [Square α] (n : α) (exp : Nat) : α := fastExpFunc exp n
 
 instance (priority := low) [Square α] : HPow α Nat α where
-  hPow n pow := fastExp n pow 
+  hPow n pow := fastExp n pow
 
 end Exp

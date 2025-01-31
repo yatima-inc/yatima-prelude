@@ -5,12 +5,12 @@ namespace ByteArray
 
 /-- Read Nat from Little-Endian ByteArray -/
 def asLEtoNat (b : ByteArray) : Nat :=
-  b.data.data.enum.foldl (init := 0)
+  b.data.toList.enum.foldl (init := 0)
     fun acc (i, bᵢ) => acc + bᵢ.toNat.shiftLeft (i * 8)
 
 /-- Read Nat from Big-Endian ByteArray -/
 def asBEtoNat (b : ByteArray) : Nat :=
-  b.data.data.foldl (init := 0) fun acc bᵢ => acc.shiftLeft 8 + bᵢ.toNat
+  b.data.toList.foldl (init := 0) fun acc bᵢ => acc.shiftLeft 8 + bᵢ.toNat
 
 /-- Returns the index of -/
 def leadingZeroBits (bytes : ByteArray) : Nat := Id.run do
@@ -34,7 +34,7 @@ def beq : @& ByteArray → @& ByteArray → Bool :=
   beqL
 
 def ordL (a b : ByteArray) : Ordering :=
-  compare a.data.data b.data.data
+  compare a.data.toList b.data.toList
 
 @[extern "lean_byte_array_ord"]
 def ord : @& ByteArray → @& ByteArray → Ordering :=
@@ -49,7 +49,7 @@ instance : DecidableEq ByteArray
     | isFalse h₂ => isFalse $ fun h => by cases h; exact (h₂ rfl)
 
 def Subarray.asBA (s : Subarray UInt8) : ByteArray :=
-  s.as.data.toByteArray
+  s.array.toList.toByteArray
 
 def toString (bs : ByteArray) : String := Id.run do
   if bs.isEmpty then "b[]" else
@@ -102,7 +102,7 @@ def sliceL (bs : ByteArray) (i n : Nat) : ByteArray :=
     | 0, _ => acc
     | n, [] => acc ++ (.mkArray n 0)
     | n + 1, b :: bs => aux (acc.push b) n bs
-  .mk $ aux #[] n (bs.data.data.drop i)
+  .mk $ aux #[] n (bs.data.toList.drop i)
 
 @[extern "lean_byte_array_slice"]
 def slice : @& ByteArray → Nat → Nat → ByteArray :=
@@ -110,22 +110,21 @@ def slice : @& ByteArray → Nat → Nat → ByteArray :=
 
 theorem sliceL.aux_size : (sliceL.aux acc n bs).size = acc.size + n := by
   induction bs generalizing acc n
-  · induction n <;> simp [sliceL.aux, ByteArray.size, Array.size]
+  · induction n <;> simp [sliceL.aux]
   rename_i ih
   cases n
   · simp [sliceL.aux]
   simp [sliceL.aux, ByteArray.size, ih]
-  rw [Nat.succ_eq_add_one, Nat.add_assoc, Nat.add_comm 1 _]
+  rw [Nat.add_assoc, Nat.add_comm 1 _]
 
 theorem slice_size : (slice bytes i n).size = n := by
   simp [slice, sliceL, sliceL.aux, sliceL.aux_size, ByteArray.size]
 
-theorem set_size : (set arr i u).size = arr.size := by
+theorem set_size : (set arr i u (h := h)).size = arr.size := by
   simp [size, set]
 
 theorem set!_size : (set! arr i u).size = arr.size := by
-  simp [size, set!, Array.set!, Array.setD]
-  by_cases h : i < arr.data.size <;> simp [h]
+  simp [size, set!, Array.set!]
 
 /-
 In this section we define Arithmetic on ByteArrays viewed as natural numbers encoded in
