@@ -7,10 +7,23 @@ package YatimaStdLib
 lean_lib YatimaStdLib where
   precompileModules := true
 
+def ffiC := "ffi.c"
+def ffiO := "ffi.o"
+
+target ffi.o pkg : System.FilePath := do
+  let oFile := pkg.buildDir / ffiO
+  let srcJob ← inputFile (pkg.dir / ffiC) true
+  let flags := #["-I", (← getLeanIncludeDir).toString, "-fPIC"]
+  buildO (oFile := oFile) (srcJob := srcJob) flags
+
+extern_lib ffi pkg := do
+  let name := nameToStaticLib "ffi"
+  let job ← fetch <| pkg.target ``ffi.o
+  buildStaticLib (pkg.nativeLibDir / name) #[job]
+
 require "leanprover-community" / "batteries" @ git "main"
 
 require "lurk-lab" / "LSpec" @ git "7f2c46b"
-
 
 section ImportAll
 
